@@ -1,6 +1,6 @@
 {
   "name": "hitslab/rocket-chat-sdk",
-  "description": "PHP SDK for Rocket.Chat Rest API",
+  "description": "PHP SDK for Rocket.Chat REST API",
   "type": "library",
   "license": "MIT",
   "authors": [
