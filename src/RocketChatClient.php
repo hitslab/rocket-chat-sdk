@@ -1,9 +1,13 @@
 <?php
 
-
 namespace Hitslab\RocketChatSDK;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Hitslab\RocketChatSDK\Request\AbstractRequest;
+use Hitslab\RocketChatSDK\Response\AbstractResponse;
+use Hitslab\RocketChatSDK\Serialization\Serializer;
+use Hitslab\RocketChatSDK\Serialization\SerializerInterface;
 
 class RocketChatClient
 {
@@ -12,24 +16,44 @@ class RocketChatClient
      */
     private $httpClient;
 
-    public function __construct($serverUrl)
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct($serverUrl, SerializerInterface $serializer = null)
     {
         $this->httpClient = new Client([
             'base_uri' => $serverUrl
         ]);
+
+        if ($serializer === null) {
+            $serializer = new Serializer();
+        }
+
+        $this->serializer = $serializer;
     }
 
-    public function rawRequest($path, $method, $requestData = [], $headers = [])
+    /**
+     * @param AbstractRequest $request
+     * @return object|AbstractResponse
+     * @throws Exceptions\SerializationException
+     */
+    public function sendRequest(AbstractRequest $request)
     {
         $options = $this->prepareGuzzleOptions(
-            $method,
-            $requestData,
-            $headers
+            $request->getMethod(),
+            $request->getRequestData(),
+            $request->getHeaders()
         );
 
-        $res = $this->httpClient->request($method, $path, $options);
+        try {
+            $res = $this->httpClient->request($request->getMethod(), $request->getPath(), $options);
+        } catch (ClientException $e) {
+            return $this->serializer->deserialize($e->getResponse()->getBody()->getContents(), $request);
+        }
 
-        return $res->getBody()->getContents();
+        return $this->serializer->deserialize($res->getBody()->getContents(), $request);
     }
 
     private function prepareGuzzleOptions($method, $requestData, $headers = [])

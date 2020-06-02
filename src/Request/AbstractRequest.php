@@ -2,6 +2,8 @@
 
 namespace Hitslab\RocketChatSDK\Request;
 
+use Hitslab\RocketChatSDK\Exceptions\SerializationException;
+use Hitslab\RocketChatSDK\Response\AbstractResponse;
 use Hitslab\RocketChatSDK\RocketChatClient;
 
 abstract class AbstractRequest
@@ -24,10 +26,6 @@ abstract class AbstractRequest
         return new static($client);
     }
 
-    abstract public function path();
-
-    abstract public function method();
-
     public function auth($authToken, $userId)
     {
         $this->authToken = $authToken;
@@ -36,7 +34,13 @@ abstract class AbstractRequest
         return $this;
     }
 
-    public function request()
+    abstract public function getPath();
+
+    abstract public function getMethod();
+
+    abstract public function getResponseClass();
+
+    public function getHeaders()
     {
         $headers = [];
 
@@ -47,13 +51,20 @@ abstract class AbstractRequest
             ];
         }
 
-        $rawResponse = $this->client->rawRequest(
-            $this->path(),
-            $this->method(),
-            $this->requestData,
-            $headers
-        );
+        return $headers;
+    }
 
-        return json_decode($rawResponse, true);
+    public function getRequestData()
+    {
+        return $this->requestData;
+    }
+
+    /**
+     * @return AbstractResponse|object
+     * @throws SerializationException
+     */
+    public function request()
+    {
+        return $this->client->sendRequest($this);
     }
 }

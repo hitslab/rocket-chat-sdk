@@ -1,9 +1,10 @@
 <?php
 
-
 namespace Hitslab\RocketChatSDK\Request\Chat;
 
+use Hitslab\RocketChatSDK\Exceptions\SerializationException;
 use Hitslab\RocketChatSDK\Request\AbstractRequest;
+use Hitslab\RocketChatSDK\Response\Chat\SendMessageResponse;
 
 class SendMessageRequest extends AbstractRequest
 {
@@ -29,13 +30,27 @@ class SendMessageRequest extends AbstractRequest
         return $this;
     }
 
-    public function path()
+    public function getPath()
     {
         return '/api/v1/chat.sendMessage';
     }
 
-    public function method()
+    public function getMethod()
     {
         return 'POST';
+    }
+
+    public function getResponseClass()
+    {
+        return SendMessageResponse::class;
+    }
+
+    /**
+     * @return object|SendMessageResponse
+     * @throws SerializationException
+     */
+    public function request()
+    {
+        return parent::request();
     }
 }

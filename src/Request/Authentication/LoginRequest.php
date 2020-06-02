@@ -2,7 +2,9 @@
 
 namespace Hitslab\RocketChatSDK\Request\Authentication;
 
+use Hitslab\RocketChatSDK\Exceptions\SerializationException;
 use Hitslab\RocketChatSDK\Request\AbstractRequest;
+use Hitslab\RocketChatSDK\Response\Authentication\LoginResponse;
 
 class LoginRequest extends AbstractRequest
 {
@@ -28,13 +30,27 @@ class LoginRequest extends AbstractRequest
         return $this;
     }
 
-    public function path()
+    public function getPath()
     {
         return '/api/v1/login';
     }
 
-    public function method()
+    public function getMethod()
     {
         return 'POST';
+    }
+
+    public function getResponseClass()
+    {
+        return LoginResponse::class;
+    }
+
+    /**
+     * @return object|LoginResponse
+     * @throws SerializationException
+     */
+    public function request()
+    {
+        return parent::request();
     }
 }
