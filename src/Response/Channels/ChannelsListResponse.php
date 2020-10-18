@@ -16,11 +16,4 @@ class ChannelsListResponse
      * @var Channel[]
      */
     public $channels;
-
-    public function getDeserializationMetadata()
-    {
-        return [
-            'channels' => Metadata::listOfEntities(Channel::class)
-        ];
-    }
 }
