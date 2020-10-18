@@ -3,7 +3,6 @@
 namespace Hitslab\RocketChatSDK\Request;
 
 use Hitslab\RocketChatSDK\Exceptions\SerializationException;
-use Hitslab\RocketChatSDK\Response\AbstractResponse;
 use Hitslab\RocketChatSDK\RocketChatClient;
 
 abstract class AbstractRequest
@@ -60,7 +59,7 @@ abstract class AbstractRequest
     }
 
     /**
-     * @return AbstractResponse|object
+     * @return object
      * @throws SerializationException
      */
     public function request()

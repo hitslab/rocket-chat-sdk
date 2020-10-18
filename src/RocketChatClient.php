@@ -5,9 +5,7 @@ namespace Hitslab\RocketChatSDK;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Hitslab\RocketChatSDK\Request\AbstractRequest;
-use Hitslab\RocketChatSDK\Response\AbstractResponse;
-use Hitslab\RocketChatSDK\Serialization\Serializer;
-use Hitslab\RocketChatSDK\Serialization\SerializerInterface;
+use Hitslab\RocketChatSDK\Serialization\Deserializer;
 
 class RocketChatClient
 {
@@ -17,26 +15,26 @@ class RocketChatClient
     private $httpClient;
 
     /**
-     * @var SerializerInterface
+     * @var Deserializer
      */
-    private $serializer;
+    private $deserializer;
 
-    public function __construct($serverUrl, SerializerInterface $serializer = null)
+    public function __construct($serverUrl, Deserializer $deserializer = null)
     {
         $this->httpClient = new Client([
             'base_uri' => $serverUrl
         ]);
 
-        if ($serializer === null) {
-            $serializer = new Serializer();
+        if ($deserializer === null) {
+            $deserializer = new Deserializer();
         }
 
-        $this->serializer = $serializer;
+        $this->deserializer = $deserializer;
     }
 
     /**
      * @param AbstractRequest $request
-     * @return object|AbstractResponse
+     * @return object
      * @throws Exceptions\SerializationException
      */
     public function sendRequest(AbstractRequest $request)
@@ -50,10 +48,10 @@ class RocketChatClient
         try {
             $res = $this->httpClient->request($request->getMethod(), $request->getPath(), $options);
         } catch (ClientException $e) {
-            return $this->serializer->deserialize($e->getResponse()->getBody()->getContents(), $request);
+            return $this->deserializer->deserialize($e->getResponse()->getBody()->getContents(), $request);
         }
 
-        return $this->serializer->deserialize($res->getBody()->getContents(), $request);
+        return $this->deserializer->deserialize($res->getBody()->getContents(), $request);
     }
 
     private function prepareGuzzleOptions($method, $requestData, $headers = [])

@@ -16,6 +16,7 @@
   },
   "require": {
     "guzzlehttp/guzzle": "^6.5",
-    "ext-json": "*"
+    "ext-json": "*",
+    "doctrine/annotations": "^1.10"
   }
 }

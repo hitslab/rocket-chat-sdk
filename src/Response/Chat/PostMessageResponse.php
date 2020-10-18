@@ -3,11 +3,10 @@
 namespace Hitslab\RocketChatSDK\Response\Chat;
 
 use Hitslab\RocketChatSDK\Entity\Message;
-use Hitslab\RocketChatSDK\Response\AbstractResponse;
 use Hitslab\RocketChatSDK\Response\WithSuccessTrait;
-use Hitslab\RocketChatSDK\Serialization\Metadata;
+use Hitslab\RocketChatSDK\Serialization\PropertyType;
 
-class PostMessageResponse extends AbstractResponse
+class PostMessageResponse
 {
     use WithSuccessTrait;
 
@@ -22,14 +21,8 @@ class PostMessageResponse extends AbstractResponse
     public $channel;
 
     /**
+     * @PropertyType(type=PropertyType::TYPE_OBJECT, class=Message::class)
      * @var Message
      */
     public $message;
-
-    public function getDeserializationMetadata()
-    {
-        return [
-            'update' => Metadata::entity(Message::class)
-        ];
-    }
 }

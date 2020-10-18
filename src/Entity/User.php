@@ -2,6 +2,8 @@
 
 namespace Hitslab\RocketChatSDK\Entity;
 
+use Hitslab\RocketChatSDK\Serialization\PropertyType;
+
 class User
 {
     /**
@@ -50,6 +52,7 @@ class User
     public $roles;
 
     /**
+     * @PropertyType(type=PropertyType::TYPE_OBJECT, class=UserSettings::class)
      * @var UserSettings
      */
     public $settings;

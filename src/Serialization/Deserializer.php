@@ -2,12 +2,27 @@
 
 namespace Hitslab\RocketChatSDK\Serialization;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
 use Hitslab\RocketChatSDK\Exceptions\SerializationException;
 use Hitslab\RocketChatSDK\Request\AbstractRequest;
-use Hitslab\RocketChatSDK\Response\AbstractResponse;
 
-class Serializer implements SerializerInterface
+class Deserializer
 {
+    /**
+     * @var Reader
+     */
+    private $reader;
+
+    public function __construct(Reader $reader = null)
+    {
+        if ($reader === null) {
+            $reader = new AnnotationReader();
+        }
+
+        $this->reader = $reader;
+    }
+
     /**
      * @param string $responseBody
      * @param AbstractRequest $request
@@ -31,10 +46,7 @@ class Serializer implements SerializerInterface
      */
     private function deserializeObject(array $data, $class)
     {
-        /** @var AbstractResponse $object */
         $object = new $class();
-
-        $metadata = $object->getDeserializationMetadata();
 
         try {
             $refObject = new \ReflectionClass($object);
@@ -43,37 +55,40 @@ class Serializer implements SerializerInterface
         }
 
         foreach ($refObject->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-            $dataKey = $this->getKeyFromPropertyName($property->getName());
+            $propertyName = $property->getName();
+
+            $dataKey = $this->getArrayDataKeyFromPropertyName($propertyName);
 
             $propertyValue = null;
 
             if (!isset($data[$dataKey])) {
-                if (!isset($data[$property->getName()])) {
+                if (!isset($data[$propertyName])) {
                     continue;
                 } else {
-                    $propertyValue = $data[$property->getName()];
+                    $propertyValue = $data[$propertyName];
                 }
             } else {
                 $propertyValue = $data[$dataKey];
             }
 
-            /** @var Metadata|null $propertyMetadata */
-            $propertyMetadata = isset($metadata[$dataKey]) ? $metadata[$dataKey] : null;
+            /** @var PropertyType|null $propertyType */
+            $propertyType = $this->reader->getPropertyAnnotation($property, PropertyType::class);
 
-            if (!$propertyMetadata->entityClass) {
-                $object->{$property->getName()} = $propertyValue;
-            } else {
-                if ($propertyMetadata->list) {
-                    $object->{$property->getName()} = $this->deserializeArrayOfObjects(
-                        $propertyValue,
-                        $propertyMetadata->entityClass
-                    );
-                } else {
-                    $object->{$property->getName()} = $this->deserializeObject(
-                        $propertyValue,
-                        $propertyMetadata->entityClass
-                    );
-                }
+            if ($propertyType === null || $propertyType->type === PropertyType::TYPE_OTHER) {
+                $object->{$propertyName} = $propertyValue;
+                continue;
+            }
+
+            if ($propertyType->type === PropertyType::TYPE_OBJECTS_ARRAY) {
+                $object->{$propertyName} = $this->deserializeArrayOfObjects(
+                    $propertyValue,
+                    $propertyType->class
+                );
+            } elseif ($propertyType->type === PropertyType::TYPE_OBJECT) {
+                $object->{$property->getName()} = $this->deserializeObject(
+                    $propertyValue,
+                    $propertyType->class
+                );
             }
         }
 
@@ -95,7 +110,7 @@ class Serializer implements SerializerInterface
         return $array;
     }
 
-    private function getKeyFromPropertyName($propertyName)
+    private function getArrayDataKeyFromPropertyName($propertyName)
     {
         switch ($propertyName) {
             case 'id':

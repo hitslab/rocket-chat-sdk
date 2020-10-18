@@ -2,6 +2,8 @@
 
 namespace Hitslab\RocketChatSDK\Entity;
 
+use Hitslab\RocketChatSDK\Serialization\PropertyType;
+
 class Channel
 {
     /**
@@ -30,6 +32,7 @@ class Channel
     public $msgs;
 
     /**
+     * @PropertyType(type=PropertyType::TYPE_OBJECT, class=User::class)
      * @var User
      */
     public $u;
