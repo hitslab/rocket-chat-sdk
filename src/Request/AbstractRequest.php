@@ -64,6 +64,6 @@ abstract class AbstractRequest
      */
     public function request()
     {
-        return $this->client->sendRequest($this);
+        return $this->client->getDeserializedResponse($this);
     }
 }

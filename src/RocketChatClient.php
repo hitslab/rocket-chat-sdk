@@ -37,7 +37,18 @@ class RocketChatClient
      * @return object
      * @throws Exceptions\SerializationException
      */
-    public function sendRequest(AbstractRequest $request)
+    public function getDeserializedResponse(AbstractRequest $request)
+    {
+        $response = $this->getResponse($request);
+
+        return $this->deserializer->deserialize($response, $request);
+    }
+
+    /**
+     * @param AbstractRequest $request
+     * @return string
+     */
+    public function getResponse(AbstractRequest $request)
     {
         $options = $this->prepareGuzzleOptions(
             $request->getMethod(),
@@ -48,12 +59,18 @@ class RocketChatClient
         try {
             $res = $this->httpClient->request($request->getMethod(), $request->getPath(), $options);
         } catch (ClientException $e) {
-            return $this->deserializer->deserialize($e->getResponse()->getBody()->getContents(), $request);
+            return $e->getResponse()->getBody()->getContents();
         }
 
-        return $this->deserializer->deserialize($res->getBody()->getContents(), $request);
+        return $res->getBody()->getContents();
     }
 
+    /**
+     * @param $method
+     * @param $requestData
+     * @param array $headers
+     * @return array
+     */
     private function prepareGuzzleOptions($method, $requestData, $headers = [])
     {
         $guzzleOptions = [];

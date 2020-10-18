@@ -14,9 +14,15 @@
       "Hitslab\\RocketChatSDK\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": { "Tests\\Hitslab\\RocketChatSDK\\": "tests/" }
+  },
   "require": {
     "guzzlehttp/guzzle": "^6.5",
     "ext-json": "*",
     "doctrine/annotations": "^1.10"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9"
   }
 }

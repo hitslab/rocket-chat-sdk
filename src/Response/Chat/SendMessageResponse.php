@@ -4,7 +4,6 @@ namespace Hitslab\RocketChatSDK\Response\Chat;
 
 use Hitslab\RocketChatSDK\Entity\Message;
 use Hitslab\RocketChatSDK\Response\WithSuccessTrait;
-use Hitslab\RocketChatSDK\Serialization\Metadata;
 use Hitslab\RocketChatSDK\Serialization\PropertyType;
 
 class SendMessageResponse
